@@ -2,26 +2,34 @@
 
 const request = require('superagent');
 
-class Connection {
-  token: ?string;
-  username: string;
+class Pryv {
+  serviceInfoUrl: string;
   apiUrl: string;
+  token: string;
 
-  constructor (settings: Object, username: string, token: ?string) {
-    this.username = username;
-    this.apiUrl = `${settings.get('api:url')}/${username}`;
-    this.token = token;
+  constructor (serviceInfoUrl: string) {
+    this.serviceInfoUrl = serviceInfoUrl;
   }
 
-  async login (req: express$Request): Promise<string> {
+  async init (): Promise<void> {
+    const res = await request
+      .get(this.serviceInfoUrl);
+    this.apiUrl = res.api;
+  }
+
+  async login (username: string, password: string, appId: string): Promise<string> {
     const res = await request
       .post(`${this.apiUrl}/auth/login`)
-      .send(req.body);
+      .send({
+        username: username,
+        password: password,
+        appId: appId,
+      });
     this.token = res.body.token;
-    return this.token || res.body.mfaToken;
+    return res.body.token || res.body.mfaToken;
   }
 
-  async fetchProfile (req: express$Request): Promise<mixed> {
+  async fetchProfile (): Promise<mixed> {
     const res = await request
       .get(`${this.apiUrl}/profile/private`)
       .set('Authorization', this.token);
@@ -29,33 +37,33 @@ class Connection {
     return pryvProfile.mfa;
   }
 
-  async checkAccess (req: express$Request): Promise<void> {
+  async checkAccess (): Promise<void> {
     await request
       .get(`${this.apiUrl}/access-info`)
       .set('Authorization', this.token);
   }
 
-  async activate (personalToken: string): Promise<string> {
+  async mfaActivate (personalToken: string): Promise<string> {
     const res = await request
       .post(`${this.apiUrl}/mfa/activate`)
       .set('Authorization', personalToken);
     return res.body.mfaToken;
   }
 
-  async confirm (mfaToken: string): Promise<Array<string>> {
+  async mfaConfirm (mfaToken: string): Promise<Array<string>> {
     const res = await request
       .post(`${this.apiUrl}/mfa/confirm`)
       .set('Authorization', mfaToken);
     return res.body.recoveryCodes;
   }
 
-  async challenge (mfaToken: string): Promise<void> {
+  async mfaChallenge (mfaToken: string): Promise<void> {
     await request
       .post(`${this.apiUrl}/mfa/challenge`)
       .set('Authorization', mfaToken);
   }
 
-  async verify (mfaToken: string): Promise<string> {
+  async mfaVerify (mfaToken: string): Promise<string> {
     const res = await request
       .post(`${this.apiUrl}/mfa/verify`)
       .set('Authorization', mfaToken);
@@ -63,4 +71,4 @@ class Connection {
   }
 }
 
-module.exports = Connection;
+module.exports = Pryv;
