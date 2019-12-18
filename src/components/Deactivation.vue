@@ -1,15 +1,22 @@
 <template>
   <div>
-    <h1>Deactivate</h1>
+    <h1>Deactivate MFA</h1>
 
     <v-form
       ref="form"
       v-model="validForm"
       @submit.prevent
     >
+      <input
+        id="checkbox"
+        v-model="recovery"
+        type="checkbox"
+      >
+      <label for="checkbox">Use recovery code</label>
+
       <v-text-field
         id="username"
-        v-model="ctx.user.username"
+        v-model="username"
         :rules="[rules.required]"
         label="Username"
       />
@@ -21,7 +28,7 @@
 
         <v-text-field
           id="recoveryCode"
-          v-model="ctx.recoveryCode"
+          v-model="recoveryCode"
           :rules="[rules.required]"
           label="Recovery code"
         />
@@ -66,12 +73,14 @@ export default {
     Alerts,
   },
   data: () => ({
+    username: '',
     password: '',
     personalToken: '',
     error: '',
     submitting: false,
     ctx: {},
     recovery: false,
+    recoveryCode: '',
     rules: {
       required: value => !!value || 'This field is required.',
     },
@@ -85,10 +94,12 @@ export default {
     async submit () {
       if (this.$refs.form.validate()) {
         this.submitting = true;
+
         try {
-          await this.ctx.pryv.login(this.password);
-          if (!this.mfaActivated) {
-            await this.ctx.pryv.checkAccess(this.showPermissions);
+          if (this.recovery) {
+            await this.ctx.pryv.mfaRecover(this.username, this.password, this.ctx.appId, this.recoveryCode);
+          } else {
+            await this.ctx.pryv.mfaDeactivate(this.username, this.personalToken);
           }
         } catch (err) {
           this.showError(err);
@@ -98,7 +109,7 @@ export default {
       }
     },
     showError (error) {
-      this.error = error.msg;
+      this.error = error.toString();
     },
   },
 };
