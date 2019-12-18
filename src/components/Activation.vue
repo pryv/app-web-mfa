@@ -92,8 +92,7 @@ export default {
     validForm: false,
   }),
   async created () {
-    console.log(this.$route);
-    this.ctx = new Context(this.query);
+    this.ctx = new Context(this.$route.query);
     await this.ctx.init();
   },
   methods: {
