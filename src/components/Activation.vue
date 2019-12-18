@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Sign in</h1>
+    <h1>Activate MFA</h1>
 
     <v-dialog
       v-model="mfaActivated"
@@ -76,7 +76,7 @@
 <script>
 import Password from './bits/Password.vue';
 import Alerts from './bits/Alerts.vue';
-import Context from '../../context.js';
+import Context from '../context.js';
 
 export default {
   components: {

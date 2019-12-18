@@ -25,6 +25,7 @@ module.exports = {
   plugins: [
     'vue',
     'flowtype-errors',
+    'html',
     'testcafe',
     'jest'
   ],

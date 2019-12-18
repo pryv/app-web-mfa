@@ -1,22 +1,23 @@
 <template>
   <div id="app">
     <img
-      alt="Vue logo"
+      alt="Logo"
       src="./assets/logo.png"
     >
-    <Main
-      msg="Welcome to Your Vue.js App"
-    />
+    <Activation />
+    <Deactivation />
   </div>
 </template>
 
 <script>
-import Main from './components/Main.vue';
+import Activation from './components/Activation.vue';
+import Deactivation from './components/Deactivation.vue';
 
 export default {
   name: 'App',
   components: {
-    Main,
+    Activation,
+    Deactivation,
   },
 };
 </script>
