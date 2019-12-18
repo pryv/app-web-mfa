@@ -21,7 +21,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn
-            @click="ctx.user.mfaToken = ''; mfaCode = ''"
+            @click="mfaCode = ''"
           >
             Cancel
           </v-btn>
@@ -41,7 +41,7 @@
     >
       <v-text-field
         id="username"
-        v-model="ctx.user.username"
+        v-model="username"
         :rules="[rules.required]"
         label="Username"
       />
@@ -54,12 +54,6 @@
         @click="submit"
       >
         Sign In
-      </v-btn>
-
-      <v-btn
-        @click="refuse"
-      >
-        Cancel
       </v-btn>
     </v-form>
 
@@ -88,6 +82,7 @@ export default {
     personalToken: '',
     mfaToken: '',
     mfaCode: '',
+    username: '',
     error: '',
     submitting: false,
     ctx: {},
@@ -97,7 +92,8 @@ export default {
     validForm: false,
   }),
   async created () {
-    this.ctx = new Context(this.$route.query);
+    console.log(this.$route);
+    this.ctx = new Context(this.query);
     await this.ctx.init();
   },
   methods: {
@@ -123,8 +119,6 @@ export default {
         await this.ctx.pryv.checkAccess(this.showPermissions);
       } catch (err) {
         this.showError(err);
-      } finally {
-        this.ctx.user.mfaToken = '';
       }
     },
     showError (error) {

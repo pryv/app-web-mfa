@@ -4,21 +4,12 @@
       alt="Logo"
       src="./assets/logo.png"
     >
-    <Activation />
-    <Deactivation />
   </div>
 </template>
 
 <script>
-import Activation from './components/Activation.vue';
-import Deactivation from './components/Deactivation.vue';
-
 export default {
   name: 'App',
-  components: {
-    Activation,
-    Deactivation,
-  },
 };
 </script>
 
