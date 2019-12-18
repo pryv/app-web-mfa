@@ -40,10 +40,10 @@
       @submit.prevent
     >
       <v-text-field
-        id="usernameOrEmail"
+        id="username"
         v-model="ctx.user.username"
         :rules="[rules.required]"
-        label="Username or email"
+        label="Username"
       />
 
       <Password v-model="password" />
@@ -61,14 +61,6 @@
       >
         Cancel
       </v-btn>
-
-      <div v-if="serviceInfos.support">
-        Feel free to reach our
-        <a
-          :href="serviceInfos.support"
-          target="_blank"
-        > helpdesk</a> if you have questions.
-      </div>
     </v-form>
 
     <v-divider
@@ -97,23 +89,13 @@ export default {
     mfaToken: '',
     mfaCode: '',
     error: '',
-    serviceInfos: {},
     submitting: false,
-    c: null,
     ctx: {},
     rules: {
       required: value => !!value || 'This field is required.',
-      email: value => /.+@.+/.test(value) || 'E-mail must be valid',
     },
     validForm: false,
   }),
-  computed: {
-    mfaActivated: {
-      get: function () {
-        return this.ctx.user.mfaToken !== '';
-      },
-    },
-  },
   async created () {
     this.ctx = new Context(this.$route.query);
     await this.ctx.init();
@@ -123,9 +105,9 @@ export default {
       if (this.$refs.form.validate()) {
         this.submitting = true;
         try {
-          await this.c.login(this.password);
+          await this.ctx.pryv.login(this.password);
           if (!this.mfaActivated) {
-            await this.c.checkAccess(this.showPermissions);
+            await this.ctx.pryv.checkAccess(this.showPermissions);
           }
         } catch (err) {
           this.showError(err);
@@ -137,8 +119,8 @@ export default {
     // Handle provided MFA code
     async handleMFA () {
       try {
-        await this.c.mfaVerify(this.mfaCode);
-        await this.c.checkAccess(this.showPermissions);
+        await this.ctx.pryv.mfaVerify(this.mfaCode);
+        await this.ctx.pryv.checkAccess(this.showPermissions);
       } catch (err) {
         this.showError(err);
       } finally {
@@ -147,9 +129,6 @@ export default {
     },
     showError (error) {
       this.error = error.msg;
-    },
-    showInfos (infos) {
-      this.serviceInfos = infos;
     },
   },
 };
