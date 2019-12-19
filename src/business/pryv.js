@@ -4,7 +4,8 @@ const request = require('superagent');
 
 class Pryv {
   serviceInfoUrl: string;
-  apiUrl: (string) => string;
+  apiUrl: string;
+  apiEndpoint: (string) => string;
 
   constructor (serviceInfoUrl: string) {
     this.serviceInfoUrl = serviceInfoUrl;
@@ -13,12 +14,13 @@ class Pryv {
   async init (): Promise<void> {
     const res = await request
       .get(this.serviceInfoUrl);
-    this.apiUrl = (username) => res.api.replace('{username}', username);
+    this.apiUrl = res.body.api;
+    this.apiEndpoint = (username) => this.apiUrl.replace('{username}', username);
   }
 
   async login (username: string, password: string, appId: string): Promise<string> {
     const res = await request
-      .post(`${this.apiUrl(username)}/auth/login`)
+      .post(`${this.apiEndpoint(username)}/auth/login`)
       .send({
         username: username,
         password: password,
@@ -29,7 +31,7 @@ class Pryv {
 
   async fetchProfile (username: string, personalToken: string): Promise<mixed> {
     const res = await request
-      .get(`${this.apiUrl(username)}/profile/private`)
+      .get(`${this.apiEndpoint(username)}/profile/private`)
       .set('Authorization', personalToken);
     const pryvProfile = res.body.profile;
     return pryvProfile.mfa;
@@ -37,46 +39,47 @@ class Pryv {
 
   async checkAccess (username: string, token: string): Promise<void> {
     await request
-      .get(`${this.apiUrl(username)}/access-info`)
+      .get(`${this.apiEndpoint(username)}/access-info`)
       .set('Authorization', token);
   }
 
   async mfaActivate (username: string, personalToken: string): Promise<string> {
     const res = await request
-      .post(`${this.apiUrl(username)}/mfa/activate`)
+      .post(`${this.apiEndpoint(username)}/mfa/activate`)
       .set('Authorization', personalToken);
     return res.body.mfaToken;
   }
 
   async mfaConfirm (username: string, mfaToken: string): Promise<Array<string>> {
     const res = await request
-      .post(`${this.apiUrl(username)}/mfa/confirm`)
+      .post(`${this.apiEndpoint(username)}/mfa/confirm`)
       .set('Authorization', mfaToken);
     return res.body.recoveryCodes;
   }
 
   async mfaChallenge (username: string, mfaToken: string): Promise<void> {
     await request
-      .post(`${this.apiUrl(username)}/mfa/challenge`)
+      .post(`${this.apiEndpoint(username)}/mfa/challenge`)
       .set('Authorization', mfaToken);
   }
 
   async mfaVerify (username: string, mfaToken: string): Promise<string> {
     const res = await request
-      .post(`${this.apiUrl(username)}/mfa/verify`)
+      .post(`${this.apiEndpoint(username)}/mfa/verify`)
       .set('Authorization', mfaToken);
     return res.body.token;
   }
 
-  async mfaDeactivate (username: string, personalToken: string): Promise<void> {
-    await request
-      .post(`${this.apiUrl(username)}/mfa/deactivate`)
+  async mfaDeactivate (username: string, personalToken: string): Promise<string> {
+    const res = await request
+      .post(`${this.apiEndpoint(username)}/mfa/deactivate`)
       .set('Authorization', personalToken);
+    return res.body.message;
   }
 
   async mfaRecover (username: string, password: string, appId: string, code: string): Promise<void> {
     await request
-      .post(`${this.apiUrl(username)}/auth/login`)
+      .post(`${this.apiEndpoint(username)}/mfa/recover`)
       .send({
         username: username,
         password: password,

@@ -2,7 +2,7 @@
   <div>
     <v-divider class="mt-3 mb-2" />
     <v-alert
-      :value="alertMsg"
+      v-if="alertMsg"
       :type="alertType"
       transition="scale-transition"
     >
@@ -19,12 +19,12 @@ export default {
   },
   computed: {
     alertMsg: function () {
-      if (this.successMsg.length > 0) return this.successMsg;
-      if (this.errorMsg.length > 0) return this.errorMsg;
+      if (this.successMsg !== '') return this.successMsg;
+      if (this.errorMsg !== '') return this.errorMsg;
       return '';
     },
     alertType: function () {
-      return this.successMsg.length > 0 ? 'success' : 'error';
+      return this.successMsg !== '' ? 'success' : 'error';
     },
   },
 };

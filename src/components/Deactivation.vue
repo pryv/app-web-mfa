@@ -57,6 +57,7 @@
     />
 
     <Alerts
+      :successMsg="success"
       :errorMsg="error"
     />
   </div>
@@ -77,6 +78,7 @@ export default {
     password: '',
     personalToken: '',
     error: '',
+    success: '',
     submitting: false,
     ctx: {},
     recovery: false,
@@ -97,19 +99,16 @@ export default {
 
         try {
           if (this.recovery) {
-            await this.ctx.pryv.mfaRecover(this.username, this.password, this.ctx.appId, this.recoveryCode);
+            this.success = await this.ctx.pryv.mfaRecover(this.username, this.password, this.ctx.appId, this.recoveryCode);
           } else {
-            await this.ctx.pryv.mfaDeactivate(this.username, this.personalToken);
+            this.success = await this.ctx.pryv.mfaDeactivate(this.username, this.personalToken);
           }
         } catch (err) {
-          this.showError(err);
+          this.error = err.toString();
         } finally {
           this.submitting = false;
         }
       }
-    },
-    showError (error) {
-      this.error = error.toString();
     },
   },
 };
