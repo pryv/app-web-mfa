@@ -56,6 +56,12 @@
       </v-btn>
     </v-form>
 
+    <v-divider class="mt-3 mb-2" />
+
+    <router-link :to="{ name: 'Activate' }">
+      <h3>Go to Activation</h3>
+    </router-link>
+
     <Alerts
       :successMsg="success"
       :errorMsg="error"

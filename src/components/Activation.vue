@@ -61,6 +61,12 @@
       </v-btn>
     </v-form>
 
+    <v-divider class="mt-3 mb-2" />
+
+    <router-link :to="{ name: 'Deactivate' }">
+      <h3>Go to Deactivation</h3>
+    </router-link>
+
     <Alerts
       :errorMsg="error"
     />
