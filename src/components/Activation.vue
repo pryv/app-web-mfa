@@ -57,7 +57,7 @@
         :disabled="!validForm||submitting"
         @click="submit"
       >
-        Sign In
+        Activate
       </v-btn>
     </v-form>
 
