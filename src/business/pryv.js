@@ -43,16 +43,22 @@ class Pryv {
       .set('Authorization', token);
   }
 
-  async mfaActivate (username: string, personalToken: string): Promise<string> {
+  async mfaActivate (username: string, personalToken: string, phone: number): Promise<string> {
     const res = await request
       .post(`${this.apiEndpoint(username)}/mfa/activate`)
+      .send({
+        phone_number: phone,
+      })
       .set('Authorization', personalToken);
     return res.body.mfaToken;
   }
 
-  async mfaConfirm (username: string, mfaToken: string): Promise<Array<string>> {
+  async mfaConfirm (username: string, mfaToken: string, code: string): Promise<Array<string>> {
     const res = await request
       .post(`${this.apiEndpoint(username)}/mfa/confirm`)
+      .send({
+        code: code,
+      })
       .set('Authorization', mfaToken);
     return res.body.recoveryCodes;
   }
@@ -63,9 +69,12 @@ class Pryv {
       .set('Authorization', mfaToken);
   }
 
-  async mfaVerify (username: string, mfaToken: string): Promise<string> {
+  async mfaVerify (username: string, mfaToken: string, code: string): Promise<string> {
     const res = await request
       .post(`${this.apiEndpoint(username)}/mfa/verify`)
+      .send({
+        code: code,
+      })
       .set('Authorization', mfaToken);
     return res.body.token;
   }
@@ -77,8 +86,8 @@ class Pryv {
     return res.body.message;
   }
 
-  async mfaRecover (username: string, password: string, appId: string, code: string): Promise<void> {
-    await request
+  async mfaRecover (username: string, password: string, appId: string, code: string): Promise<string> {
+    const res = await request
       .post(`${this.apiEndpoint(username)}/mfa/recover`)
       .send({
         username: username,
@@ -86,6 +95,7 @@ class Pryv {
         appId: appId,
         recoveryCode: code,
       });
+    return res.body.message;
   }
 }
 

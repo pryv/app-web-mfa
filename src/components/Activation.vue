@@ -25,7 +25,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn
-            @click="mfaCode = ''"
+            @click="mfaToken = '';mfaCode = ''"
           >
             Cancel
           </v-btn>
@@ -52,6 +52,13 @@
 
       <Password v-model="password" />
 
+      <v-text-field
+        id="phone"
+        v-model="phone"
+        :rules="[rules.required]"
+        label="Phone number"
+      />
+
       <v-btn
         id="submitButton"
         :disabled="!validForm||submitting"
@@ -68,8 +75,14 @@
     </router-link>
 
     <Alerts
+      :successMsg="success"
       :errorMsg="error"
     />
+
+    <div v-if="recoveryCodes">
+      <b>Here are your MFA recovery codes:</b>
+      <div>{{ recoveryCodes }}</div>
+    </div>
   </div>
 </template>
 
@@ -88,8 +101,11 @@ export default {
     personalToken: '',
     mfaToken: '',
     mfaCode: '',
+    recoveryCodes: null,
     username: '',
+    phone: '',
     error: '',
+    success: '',
     submitting: false,
     ctx: {},
     rules: {
@@ -97,6 +113,13 @@ export default {
     },
     validForm: false,
   }),
+  computed: {
+    mfaActivated: {
+      get: function () {
+        return this.mfaToken !== '';
+      },
+    },
+  },
   async created () {
     this.ctx = new Context(this.$route.query);
     await this.ctx.init();
@@ -106,12 +129,26 @@ export default {
       if (this.$refs.form.validate()) {
         this.submitting = true;
         try {
-          await this.ctx.pryv.login(this.password);
-          if (!this.mfaActivated) {
-            await this.ctx.pryv.checkAccess(this.showPermissions);
+          this.personalToken = await this.ctx.pryv.login(this.username, this.password, this.ctx.appId);
+        } catch (err) {
+          if (err.response != null && err.response.status === 302) {
+            this.error = 'MFA already active.';
+          } else {
+            this.error = err;
+          }
+        } finally {
+          this.submitting = false;
+        }
+        try {
+          if (this.personalToken !== '') {
+            await this.ctx.pryv.mfaActivate(this.username, this.personalToken, this.phone);
           }
         } catch (err) {
-          this.showError(err);
+          if (err.response != null && err.response.body != null && err.response.body.mfaToken != null) {
+            this.mfaToken = err.response.body.mfaToken;
+          } else {
+            this.error = err;
+          }
         } finally {
           this.submitting = false;
         }
@@ -120,14 +157,14 @@ export default {
     // Handle provided MFA code
     async handleMFA () {
       try {
-        await this.ctx.pryv.mfaVerify(this.mfaCode);
-        await this.ctx.pryv.checkAccess(this.showPermissions);
+        this.recoveryCodes = await this.ctx.pryv.mfaConfirm(this.username, this.mfaToken, this.mfaCode);
+        this.success = 'MFA activated!';
       } catch (err) {
-        this.showError(err);
+        this.error = err;
+      } finally {
+        this.mfaToken = '';
+        this.mfaCode = '';
       }
-    },
-    showError (error) {
-      this.error = error.msg;
     },
   },
 };
