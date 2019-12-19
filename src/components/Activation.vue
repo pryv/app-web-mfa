@@ -2,6 +2,10 @@
   <div>
     <h1>Activate MFA</h1>
 
+    <v-divider
+      class="mt-3 mb-2"
+    />
+
     <v-dialog
       v-model="mfaActivated"
       persistent
@@ -56,10 +60,6 @@
         Sign In
       </v-btn>
     </v-form>
-
-    <v-divider
-      class="mt-3 mb-2"
-    />
 
     <Alerts
       :errorMsg="error"

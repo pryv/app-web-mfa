@@ -2,6 +2,10 @@
   <div>
     <h1>Deactivate MFA</h1>
 
+    <v-divider
+      class="mt-3 mb-2"
+    />
+
     <v-form
       ref="form"
       v-model="validForm"
@@ -12,7 +16,7 @@
         v-model="recovery"
         type="checkbox"
       >
-      <label for="checkbox">Use recovery code</label>
+      <label for="checkbox"> Use recovery code</label>
 
       <v-text-field
         id="username"
@@ -51,10 +55,6 @@
         Deactivate
       </v-btn>
     </v-form>
-
-    <v-divider
-      class="mt-3 mb-2"
-    />
 
     <Alerts
       :successMsg="success"
