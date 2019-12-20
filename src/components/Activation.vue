@@ -30,7 +30,8 @@
             Cancel
           </v-btn>
           <v-btn
-            @click="handleMFA()"
+            id="confirmMfa"
+            @click="confirmMFA()"
           >
             Ok
           </v-btn>
@@ -79,7 +80,10 @@
       :errorMsg="error"
     />
 
-    <div v-if="recoveryCodes">
+    <div
+      v-if="recoveryCodes"
+      id="recovery"
+    >
       <b>Here are your MFA recovery codes:</b>
       <div>{{ recoveryCodes }}</div>
     </div>
@@ -132,19 +136,19 @@ export default {
           this.personalToken = await this.ctx.pryv.login(this.username, this.password, this.ctx.appId);
           this.mfaToken = await this.ctx.pryv.mfaActivate(this.username, this.personalToken, this.phone);
         } catch (err) {
-          this.error = err;
+          this.error = err.toString();
         } finally {
           this.submitting = false;
         }
       }
     },
-    // Handle provided MFA code
-    async handleMFA () {
+    // Verify provided MFA code
+    async confirmMFA () {
       try {
         this.recoveryCodes = await this.ctx.pryv.mfaConfirm(this.username, this.mfaToken, this.mfaCode);
         this.success = 'MFA activated!';
       } catch (err) {
-        this.error = err;
+        this.error = err.toString();
       } finally {
         this.mfaToken = '';
         this.mfaCode = '';
