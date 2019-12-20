@@ -6,7 +6,10 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "start": "vue-cli-service serve",
-    "test": "testcafe chrome tests/*.test.js --app \"yarn start\""
+    "test": "testcafe chrome tests/*.test.js --app \"yarn start\"",
+    "setup": "sh scripts/setup.sh",
+    "upload": "sh scripts/upload.sh",
+    "clear": "rm -rf dist/ && yarn setup"
   },
   "dependencies": {
     "core-js": "^3.4.3",
