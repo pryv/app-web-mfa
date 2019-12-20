@@ -130,25 +130,9 @@ export default {
         this.submitting = true;
         try {
           this.personalToken = await this.ctx.pryv.login(this.username, this.password, this.ctx.appId);
+          this.mfaToken = await this.ctx.pryv.mfaActivate(this.username, this.personalToken, this.phone);
         } catch (err) {
-          if (err.response != null && err.response.status === 302) {
-            this.error = 'MFA already active.';
-          } else {
-            this.error = err;
-          }
-        } finally {
-          this.submitting = false;
-        }
-        try {
-          if (this.personalToken !== '') {
-            await this.ctx.pryv.mfaActivate(this.username, this.personalToken, this.phone);
-          }
-        } catch (err) {
-          if (err.response != null && err.response.body != null && err.response.body.mfaToken != null) {
-            this.mfaToken = err.response.body.mfaToken;
-          } else {
-            this.error = err;
-          }
+          this.error = err;
         } finally {
           this.submitting = false;
         }

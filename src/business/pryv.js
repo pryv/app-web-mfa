@@ -19,14 +19,22 @@ class Pryv {
   }
 
   async login (username: string, password: string, appId: string): Promise<string> {
-    const res = await request
-      .post(`${this.apiEndpoint(username)}/auth/login`)
-      .send({
-        username: username,
-        password: password,
-        appId: appId,
-      });
-    return res.body.token;
+    try {
+      const res = await request
+        .post(`${this.apiEndpoint(username)}/auth/login`)
+        .send({
+          username: username,
+          password: password,
+          appId: appId,
+        });
+      return res.body.token;
+    } catch (err) {
+      if (err.response != null && err.response.status === 302) {
+        throw new Error('MFA already active.');
+      } else {
+        throw err;
+      }
+    }
   }
 
   async fetchProfile (username: string, personalToken: string): Promise<mixed> {
@@ -44,13 +52,21 @@ class Pryv {
   }
 
   async mfaActivate (username: string, personalToken: string, phone: number): Promise<string> {
-    const res = await request
-      .post(`${this.apiEndpoint(username)}/mfa/activate`)
-      .send({
-        phone_number: phone,
-      })
-      .set('Authorization', personalToken);
-    return res.body.mfaToken;
+    try {
+      const res = await request
+        .post(`${this.apiEndpoint(username)}/mfa/activate`)
+        .send({
+          phone_number: phone,
+        })
+        .set('Authorization', personalToken);
+      return res.body.mfaToken;
+    } catch (err) {
+      if (err.response != null && err.response.body != null && err.response.body.mfaToken != null) {
+        return err.response.body.mfaToken;
+      } else {
+        throw err;
+      }
+    }
   }
 
   async mfaConfirm (username: string, mfaToken: string, code: string): Promise<Array<string>> {
