@@ -21,7 +21,7 @@ export default {
   data: () => ({
     visiblePass: false,
     rules: {
-      required: value => !!value || 'Password is required.',
+      required: value => !!value || 'This field is required.',
     },
   }),
 };
