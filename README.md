@@ -28,11 +28,11 @@ then build and publish again.
 We present here an example of Nginx configuration for using app-web-mfa within a Pryv.io installation.
 
 ```
-# Static Web: /nginx/conf/site-443.conf
+# Static Web: /nginx/conf/site-443-mfa.conf
 server {
   listen               443;
-  server_name          sw.pryv.me;
-  access_log           /app/log/sw.access.log;
+  server_name          mfa.pryv.me;
+  access_log           /app/log/mfa.access.log;
   ssl                  on;
   client_max_body_size 5M;
 
