@@ -1,8 +1,6 @@
 module.exports = {
   assetsDir: 'static',
-  publicPath: process.env.NODE_ENV === 'production'
-    ? '/app-web-mfa/'
-    : '/',
+  publicPath: '',
   transpileDependencies: [
     'vuetify',
   ],
