@@ -10,7 +10,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: 'activate',
+      redirect: { name: 'Activate' },
     },
     {
       path: '/activate',
