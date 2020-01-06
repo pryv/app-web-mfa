@@ -1,6 +1,8 @@
 module.exports = {
   assetsDir: 'static',
-  publicPath: '',
+  publicPath: process.env.NODE_ENV === 'production'
+    ? ''
+    : '/',
   transpileDependencies: [
     'vuetify',
   ],

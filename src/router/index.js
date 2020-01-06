@@ -23,5 +23,9 @@ export default new Router({
       name: 'Deactivate',
       component: Deactivation,
     },
+    {
+      path: '*',
+      redirect: { path: '/' },
+    },
   ],
 });
