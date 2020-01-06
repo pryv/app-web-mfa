@@ -2,40 +2,55 @@
 
 import { Selector, RequestMock, RequestLogger } from 'testcafe';
 
-const loginEndpoint = 'https://testuser.pryv.me/auth/login';
-const activateEndpoint = 'https://testuser.pryv.me/mfa/activate';
-const confirmEndpoint = 'https://testuser.pryv.me/mfa/confirm';
+const loginParams = {
+  username: 'testuser',
+  password: 'testpassword',
+  appId: 'pryv-app-web-mfa',
+};
+const phoneNumber = '4791234567';
+const personalToken = 'personalToken';
+const mfaToken = 'mfaToken';
+const mfaCode = '1234';
+
+const loginEndpoint = `https://${loginParams.username}.pryv.me/auth/login`;
+const activateEndpoint = `https://${loginParams.username}.pryv.me/mfa/activate`;
+const confirmEndpoint = `https://${loginParams.username}.pryv.me/mfa/confirm`;
 
 // ---------- Requests loggers ----------
 
 const loginLogger = RequestLogger(loginEndpoint, {
   logRequestBody: true,
+  stringifyRequestBody: true,
 });
 
 const activateLogger = RequestLogger(activateEndpoint, {
   logRequestBody: true,
+  stringifyRequestBody: true,
+  logRequestHeaders: true,
 });
 
 const confirmLogger = RequestLogger(confirmEndpoint, {
   logRequestBody: true,
+  stringifyRequestBody: true,
+  logRequestHeaders: true,
 });
 
 // ---------- Requests mocks ----------
 
 const loginMock = RequestMock()
   .onRequestTo(loginEndpoint)
-  .respond({ token: 'personalToken' }, 200, { 'Access-Control-Allow-Origin': '*' });
+  .respond({ token: personalToken }, 200, { 'Access-Control-Allow-Origin': '*' });
 
 const activateMock = RequestMock()
   .onRequestTo(activateEndpoint)
-  .respond({ mfaToken: 'mfaToken' }, 302, { 'Access-Control-Allow-Origin': '*' });
+  .respond({ mfaToken: mfaToken }, 302, { 'Access-Control-Allow-Origin': '*' });
 
 const confirmMock = RequestMock()
   .onRequestTo(confirmEndpoint)
   .respond({ recoveryCodes: ['1234', '5678'] }, 200, { 'Access-Control-Allow-Origin': '*' });
 
 fixture('MFA activation')
-  .page('http://localhost:8080/activate')
+  .page('http://localhost:8080/#/activate')
   .requestHooks(loginLogger, activateLogger, confirmLogger,
     loginMock, activateMock, confirmMock);
 
@@ -46,32 +61,30 @@ test('Login, MFA activate and then MFA confirm', async testController => {
       throw new Error(text);
     })
     // Fill the activation form
-    .typeText('#username', 'testuser')
-    .typeText('#password', 'testpassword')
-    .typeText('#phone', '1234')
+    .typeText('#username', loginParams.username)
+    .typeText('#password', loginParams.password)
+    .typeText('#phone', phoneNumber)
     .click('#submitButton')
-    // Service-info call was performed ?
     // Login call was performed
     .expect(loginLogger.contains(record =>
       record.request.method === 'post' &&
-      record.request.body.username === 'testuser' &&
-      record.request.body.password === 'testpassword' &&
-      record.request.body.appId === 'app-web-mfa',
+      record.request.body.includes(JSON.stringify(loginParams)),
     )).ok()
     // Activate call was performed
     .expect(activateLogger.contains(record =>
       record.request.method === 'post' &&
-      record.request.body.phone === '1234' &&
-      record.request.headers.authorization === 'personalToken',
+      record.request.body.includes(`"phone_number":"${phoneNumber}"`) &&
+      record.request.headers.authorization === personalToken,
     )).ok()
     // A dialog asks the user for the MFA verification code
-    .typeText('#mfaCode', '1234')
+    .typeText('#mfaCode', mfaCode)
     .click('#confirmMfa')
     // Confirm call was performed
     .expect(confirmLogger.contains(record =>
       record.request.method === 'post' &&
-      record.request.body.code === '1234' &&
-      record.request.headers.authorization === 'mfaToken',
+      record.request.body.includes(`"code":"${mfaCode}"`) &&
+      record.request.headers.authorization === mfaToken,
     )).ok()
-    .expect(Selector('#recovery').textContent).contains("['1234', '5678']");
+    .expect(Selector('#recovery').innerText).contains('[ "1234", "5678" ]')
+    .expect(Selector('#alert').innerText).contains('MFA activated!');
 });

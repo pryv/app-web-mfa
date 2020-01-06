@@ -76,6 +76,7 @@
     </router-link>
 
     <Alerts
+      id="alert"
       :successMsg="success"
       :errorMsg="error"
     />
