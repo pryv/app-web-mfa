@@ -6,8 +6,6 @@ import Deactivation from '@/components/Deactivation';
 Vue.use(Router);
 
 export default new Router({
-  mode: 'history',
-  base: 'mfa',
   routes: [
     {
       path: '/',
