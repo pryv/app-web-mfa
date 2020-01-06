@@ -1,5 +1,7 @@
 # app-web-mfa
-VueJS app for MFA process activation, deactivation &amp; recovery
+VueJS app for MFA process activation, deactivation &amp; recovery.
+
+https://pryv.github.io/app-web-mfa
 
 ## How to?
 
