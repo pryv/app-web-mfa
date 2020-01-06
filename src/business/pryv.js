@@ -23,7 +23,7 @@ class Pryv {
     };
   }
 
-  async login (username: string, password: string, appId: string): Promise<string> {
+  async login (username: string, password: string, appId: string): Promise<{token?: string, mfaToken?: string}> {
     try {
       const res = await request
         .post(this.apiEndpoint(username, '/auth/login'))
@@ -32,10 +32,11 @@ class Pryv {
           password: password,
           appId: appId,
         });
-      return res.body.token;
+      return { token: res.body.token };
     } catch (err) {
-      if (err.response != null && err.response.status === 302) {
-        throw new Error('MFA already active.');
+      if (err.response != null && err.response.status === 302 &&
+          err.response.body != null && err.response.body.mfaToken != null) {
+        return { mfaToken: err.response.body.mfaToken };
       } else {
         throw err;
       }

@@ -133,8 +133,13 @@ export default {
       if (this.$refs.form.validate()) {
         this.submitting = true;
         try {
-          this.personalToken = await this.ctx.pryv.login(this.username, this.password, this.ctx.appId);
-          this.mfaToken = await this.ctx.pryv.mfaActivate(this.username, this.personalToken, this.phone);
+          const res = await this.ctx.pryv.login(this.username, this.password, this.ctx.appId);
+          if (res.mfaToken != null) {
+            this.success = 'MFA already active.';
+          } else {
+            this.personalToken = res.token;
+            this.mfaToken = await this.ctx.pryv.mfaActivate(this.username, this.personalToken, this.phone);
+          }
         } catch (err) {
           this.error = err.toString();
         } finally {

@@ -6,6 +6,39 @@
       class="mt-3 mb-2"
     />
 
+    <v-dialog
+      v-model="mfaActivated"
+      persistent
+      width="600"
+    >
+      <v-card>
+        <v-card-title class="headline grey lighten-2">
+          MFA verification
+        </v-card-title>
+        <v-text-field
+          id="mfaCode"
+          v-model="mfaCode"
+          :rules="[rules.required]"
+          class="ma-3"
+          label="MFA code"
+        />
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            @click="mfaToken = '';mfaCode = ''"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            id="deactivateMFA"
+            @click="deactivateMFA()"
+          >
+            Ok
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-form
       ref="form"
       v-model="validForm"
@@ -25,27 +58,17 @@
         label="Username"
       />
 
-      <div v-if="recovery">
-        <Password
-          v-model="password"
-        />
+      <Password
+        v-model="password"
+      />
 
-        <v-text-field
-          id="recoveryCode"
-          v-model="recoveryCode"
-          :rules="[rules.required]"
-          label="Recovery code"
-        />
-      </div>
-
-      <div v-else>
-        <v-text-field
-          id="token"
-          v-model="personalToken"
-          :rules="[rules.required]"
-          label="Personal token"
-        />
-      </div>
+      <v-text-field
+        v-if="recovery"
+        id="recoveryCode"
+        v-model="recoveryCode"
+        :rules="[rules.required]"
+        label="Recovery code"
+      />
 
       <v-btn
         id="submitButton"
@@ -83,6 +106,8 @@ export default {
     username: '',
     password: '',
     personalToken: '',
+    mfaToken: '',
+    mfaCode: '',
     error: '',
     success: '',
     submitting: false,
@@ -94,6 +119,13 @@ export default {
     },
     validForm: false,
   }),
+  computed: {
+    mfaActivated: {
+      get: function () {
+        return this.mfaToken !== '';
+      },
+    },
+  },
   async created () {
     this.ctx = new Context(this.$route.query);
     await this.ctx.init();
@@ -107,13 +139,30 @@ export default {
           if (this.recovery) {
             this.success = await this.ctx.pryv.mfaRecover(this.username, this.password, this.ctx.appId, this.recoveryCode);
           } else {
-            this.success = await this.ctx.pryv.mfaDeactivate(this.username, this.personalToken);
+            const res = await this.ctx.pryv.login(this.username, this.password, this.ctx.appId);
+            if (res.mfaToken == null) {
+              this.success = 'MFA already deactivated.';
+            } else {
+              await this.ctx.pryv.mfaChallenge(this.username, res.mfaToken);
+              this.mfaToken = res.mfaToken;
+            }
           }
         } catch (err) {
           this.error = err.toString();
         } finally {
           this.submitting = false;
         }
+      }
+    },
+    async deactivateMFA () {
+      try {
+        this.personalToken = await this.ctx.pryv.mfaVerify(this.username, this.mfaToken, this.mfaCode);
+        this.success = await this.ctx.pryv.mfaDeactivate(this.username, this.personalToken);
+      } catch (err) {
+        this.error = err.toString();
+      } finally {
+        this.mfaToken = '';
+        this.mfaCode = '';
       }
     },
   },
