@@ -8,7 +8,10 @@ https://pryv.github.io/app-web-mfa
 | Task                              | Command                        |
 | --------------------------------- | ------------------------------ |
 | Install dependencies              | `yarn install`                 |
+| Setup dev environment             | `yarn setup`                   |
 | Create distribution               | `yarn build`                   |
+| Publish distribution              | `yarn upload ${COMMIT_MESSAGE}`|
+| Clear distribution                | `yarn clear`                   |
 | Run the app locally               | `yarn start`                   |
 | Run tests                         | `yarn test`                    |
 | Run eslint                        | `yarn lint`                    |
