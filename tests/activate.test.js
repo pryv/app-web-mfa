@@ -1,17 +1,19 @@
 /* eslint-disable jest/expect-expect */
 
 import { Selector, RequestMock, RequestLogger } from 'testcafe';
+import config from '../src/config.js';
 
 const loginParams = {
   username: 'testuser',
   password: 'testpassword',
-  appId: 'pryv-app-web-mfa',
+  appId: config.appId,
 };
 const phoneNumber = '4791234567';
 const personalToken = 'personalToken';
 const mfaToken = 'mfaToken';
 const mfaCode = '1234';
 
+const initEndpoint = config.pryvServiceInfoUrl;
 const loginEndpoint = `https://${loginParams.username}.pryv.me/auth/login`;
 const activateEndpoint = `https://${loginParams.username}.pryv.me/mfa/activate`;
 const confirmEndpoint = `https://${loginParams.username}.pryv.me/mfa/confirm`;
@@ -37,6 +39,10 @@ const confirmLogger = RequestLogger(confirmEndpoint, {
 
 // ---------- Requests mocks ----------
 
+const initMock = RequestMock()
+  .onRequestTo(initEndpoint)
+  .respond({ api: 'https://{username}.pryv.me/' }, 200, { 'Access-Control-Allow-Origin': '*' });
+
 const loginMock = RequestMock()
   .onRequestTo(loginEndpoint)
   .respond({ token: personalToken }, 200, { 'Access-Control-Allow-Origin': '*' });
@@ -52,7 +58,7 @@ const confirmMock = RequestMock()
 fixture('MFA activation')
   .page('http://localhost:8080/#/activate')
   .requestHooks(loginLogger, activateLogger, confirmLogger,
-    loginMock, activateMock, confirmMock);
+    initMock, loginMock, activateMock, confirmMock);
 
 test('Login, MFA activate and then MFA confirm', async testController => {
   await testController

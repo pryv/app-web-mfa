@@ -1,15 +1,17 @@
 /* eslint-disable jest/expect-expect */
 
 import { Selector, RequestMock, RequestLogger } from 'testcafe';
+import config from '../src/config.js';
 
 const recoverParams = {
   username: 'testuser',
   password: 'testpassword',
-  appId: 'pryv-app-web-mfa',
+  appId: config.appId,
   recoveryCode: '1234',
 };
 const successMessage = 'MFA deactivated.';
 
+const initEndpoint = config.pryvServiceInfoUrl;
 const recoverEndpoint = `https://${recoverParams.username}.pryv.me/mfa/recover`;
 
 // ---------- Requests loggers ----------
@@ -21,13 +23,17 @@ const recoverLogger = RequestLogger(recoverEndpoint, {
 
 // ---------- Requests mocks ----------
 
+const initMock = RequestMock()
+  .onRequestTo(initEndpoint)
+  .respond({ api: 'https://{username}.pryv.me/' }, 200, { 'Access-Control-Allow-Origin': '*' });
+
 const recoverMock = RequestMock()
   .onRequestTo(recoverEndpoint)
   .respond({ message: successMessage }, 200, { 'Access-Control-Allow-Origin': '*' });
 
 fixture('MFA deactivation with recovery code')
   .page('http://localhost:8080/#/deactivate')
-  .requestHooks(recoverLogger, recoverMock);
+  .requestHooks(recoverLogger, initMock, recoverMock);
 
 test('MFA recover', async testController => {
   await testController
