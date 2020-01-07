@@ -152,7 +152,7 @@ export default {
     async confirmMFA () {
       try {
         this.recoveryCodes = await this.ctx.pryv.mfaConfirm(this.username, this.mfaToken, this.mfaCode);
-        this.success = 'MFA activated!';
+        this.success = 'MFA activated.';
       } catch (err) {
         this.error = err.toString();
       } finally {

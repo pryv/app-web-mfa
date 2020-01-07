@@ -86,5 +86,5 @@ test('Login, MFA activate and then MFA confirm', async testController => {
       record.request.headers.authorization === mfaToken,
     )).ok()
     .expect(Selector('#recovery').innerText).contains('[ "1234", "5678" ]')
-    .expect(Selector('#alert').innerText).contains('MFA activated!');
+    .expect(Selector('#alert').innerText).contains('MFA activated.');
 });
