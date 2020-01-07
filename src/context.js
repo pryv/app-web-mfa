@@ -1,6 +1,7 @@
 // @flow
 
 import Pryv from './business/pryv.js';
+import config from './config.js';
 
 type QueryParameters = {
   pryvServiceInfoUrl: string,
@@ -12,8 +13,8 @@ class Context {
   pryv: Pryv;
 
   constructor (queryParams: QueryParameters) {
-    this.appId = 'pryv-app-web-mfa';
-    this.serviceInfoUrl = queryParams.pryvServiceInfoUrl || 'https://reg.pryv.me/service/info';
+    this.appId = config.appId;
+    this.serviceInfoUrl = queryParams.pryvServiceInfoUrl || config.pryvServiceInfoUrl;
   }
 
   async init () {

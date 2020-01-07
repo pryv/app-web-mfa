@@ -31,6 +31,10 @@ Then, publish your changes by running `yarn upload ${COMMIT_MESSAGE}`
 If you encounter conflicts while publishing, run `yarn clear` to reset the `dist/` folder,
 then build and publish again.
 
+## Configuration
+
+The app can be configured by editing the configuration file `/src/config.js` (e.g. _appId, pryvServiceInfoUrl_).
+
 ## License
 
 [Revised BSD license](https://github.com/pryv/documents/blob/master/license-bsd-revised.md)
