@@ -3,6 +3,10 @@ VueJS app for MFA process activation, deactivation &amp; recovery.
 
 https://pryv.github.io/app-web-mfa
 
+_Prerequisites:_ 
+- Node v12+
+- Yarn v1+
+
 ## How to?
 
 | Task                              | Command                        |
