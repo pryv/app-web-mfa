@@ -27,27 +27,6 @@ Then, publish your changes by running `yarn upload ${COMMIT_MESSAGE}`
 If you encounter conflicts while publishing, run `yarn clear` to reset the `dist/` folder,
 then build and publish again.
 
-
-### Configure for a use with NGINX
-
-We present here an example of Nginx configuration for using app-web-mfa within a Pryv.io installation.
-
-```
-# Static Web: /nginx/conf/site-443-mfa.conf
-server {
-  listen               443;
-  server_name          mfa.pryv.me;
-  access_log           /app/log/mfa.access.log;
-  ssl                  on;
-  client_max_body_size 5M;
-
-  location /mfa/ {
-      proxy_pass        https://pryv.github.io/app-web-mfa/;
-      proxy_set_header  Host 'pryv.github.io';
-  }
-}
-```
-
 ## License
 
 [Revised BSD license](https://github.com/pryv/documents/blob/master/license-bsd-revised.md)
