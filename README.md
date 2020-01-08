@@ -35,6 +35,8 @@ then build and publish again.
 
 The app can be configured by editing the configuration file `/src/config.js` (e.g. _appId, pryvServiceInfoUrl_).
 
+Some of the configuration parameters will be retrieved from the [service information](http://api.pryv.com/reference/#service-info), using the pryvServiceInfoUrl provided as query parameter or the default one specified in the configuration file.
+
 ## License
 
 [Revised BSD license](https://github.com/pryv/documents/blob/master/license-bsd-revised.md)
