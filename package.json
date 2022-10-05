@@ -9,7 +9,8 @@
     "test": "testcafe chrome tests/*.test.js --app \"yarn start\"",
     "setup": "sh scripts/setup.sh",
     "upload": "sh scripts/upload.sh",
-    "clear": "rm -rf dist/ && yarn setup"
+    "clear": "rm -rf dist/ && yarn setup",
+    "webserver": "node node_modules/.bin/rec.la ./dist 9002"
   },
   "dependencies": {
     "core-js": "^3.4.3",
@@ -19,6 +20,7 @@
     "vuetify": "^2.1.15"
   },
   "devDependencies": {
+    "rec.la": "^0.3.0",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
